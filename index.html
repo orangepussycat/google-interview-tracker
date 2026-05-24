@@ -482,6 +482,21 @@ function renderLeetCode() {
   var pct = filtered.length ? done/filtered.length*100 : 0;
   document.getElementById('lcProgressBar').style.width = pct + '%';
   document.getElementById('lcProgressText').textContent = done + '/' + filtered.length;
+  
+  // Multi-topic filter pills (OR logic)
+  if (leetCodeView === 'topic') {
+    var allTags = new Set();
+    filtered.forEach(function(p) { (p.categories||[]).forEach(function(c) { allTags.add(c); }); });
+    var tagHtml = Array.from(allTags).sort().map(function(t) {
+      var isActive = lcTopicFilters.indexOf(t) >= 0;
+      return '<span class="tag-pill' + (isActive ? ' active' : '') + '" onclick="toggleLCTopic(\'' + t.replace(/'/g,"\\'") + '\')">' + t + '</span>';
+    }).join('');
+    document.getElementById('tagPills').innerHTML = tagHtml;
+    document.getElementById('tagPills').style.display = 'flex';
+  } else {
+    document.getElementById('tagPills').style.display = 'none';
+  }
+  
 }
 
 function setLCView(view, el) {
@@ -506,6 +521,14 @@ function setLCDiff(filter, el) {
 }
 
 function setLCSearch(q) { searchQuery = q; renderCurrent(); }
+
+var lcTopicFilters = [];
+function toggleLCTopic(tag) {
+  var idx = lcTopicFilters.indexOf(tag);
+  if (idx >= 0) lcTopicFilters.splice(idx, 1);
+  else lcTopicFilters.push(tag);
+  renderLeetCode();
+}
 
 // ===== REAL QUESTIONS =====
 var realDiff = 'all';

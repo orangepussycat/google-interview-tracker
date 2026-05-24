@@ -424,6 +424,13 @@ function renderLeetCode() {
   var container = document.getElementById('container');
   var html = '';
 
+  // Apply multi-topic filter (OR logic - match ANY selected tag)
+  if (lcTopicFilters.length > 0) {
+    filtered = filtered.filter(function(p) {
+      return lcTopicFilters.some(function(t) { return (p.categories||[]).indexOf(t) >= 0; });
+    });
+  }
+  
   if (leetCodeView === 'freq') {
     filtered.sort(function(a,b) { return getLCFreqRank(a) - getLCFreqRank(b); });
     for (var i = 0; i < filtered.length; i++) {

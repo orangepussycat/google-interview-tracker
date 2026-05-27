@@ -205,16 +205,22 @@ pre.code-block {
   .accept { display: none; }
   .click-hint { display: none; }
   .list-badge { font-size: 8px; padding: 1px 3px; }
+  .header h1 { font-size: 15px; }
+  .header .subtitle { font-size: 10px; display: block; }
+  .header a { font-size: 9px !important; padding: 1px 5px !important; }
+  .tag-pills { max-height: 30vh; overflow-y: auto; }
 }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>Google Interview Prep</h1><span class="subtitle" id="headerStats"></span>
-  <div style="float:right;display:flex;gap:10px;margin-top:-4px">
-    <a href="trie-unionfind-graph.html" style="font-size:11px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:12px">Trie · UF · Graph</a>
-    <a href="bq-tracker.html" style="font-size:11px;color:var(--accent);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:12px">BQ Stories</a>
+  <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:4px">
+    <h1 style="margin-bottom:0">Google Interview Prep</h1><span class="subtitle" id="headerStats" style="margin-left:0"></span>
+    <span style="display:flex;gap:6px;margin-left:auto">
+      <a href="trie-unionfind-graph.html" style="font-size:10px;color:var(--accent);text-decoration:none;padding:2px 7px;border:1px solid var(--border);border-radius:12px;white-space:nowrap">Trie·UF·Graph</a>
+      <a href="bq-tracker.html" style="font-size:10px;color:var(--accent);text-decoration:none;padding:2px 7px;border:1px solid var(--border);border-radius:12px;white-space:nowrap">BQ Stories</a>
+    </span>
   </div>
   <div class="tabs">
     <button class="tab" data-tab="real" onclick="switchTab('real')">Real Questions</button>
@@ -570,6 +576,20 @@ function setRealDiff(f, el) {
 
 function setRealSearch(q) { realSearch = q; renderRealQuestions(); }
 
+var realTagsVisible = true;
+function toggleTagPills() {
+  realTagsVisible = !realTagsVisible;
+  var el = document.getElementById('tagPills');
+  var btn = document.getElementById('tagToggleBtn');
+  if (realTagsVisible) {
+    el.style.display = 'flex';
+    if (btn) btn.textContent = 'Tags ▼';
+  } else {
+    el.style.display = 'none';
+    if (btn) btn.textContent = 'Tags ▶';
+  }
+}
+
 function setRealTag(tag) {
   realTagFilter = realTagFilter === tag ? '' : tag;
   renderRealQuestions();
@@ -744,6 +764,7 @@ function renderRealToolbar() {
     '<span class="pill" onclick="setRealDiff(\'Easy\', this)">Easy</span>' +
     '<span class="pill" onclick="setRealDiff(\'Medium\', this)">Medium</span>' +
     '<span class="pill" onclick="setRealDiff(\'Hard\', this)">Hard</span></div>' +
+    '<span class="pill" id="tagToggleBtn" onclick="toggleTagPills()" style="font-size:10px">Tags ▼</span>' +
     '<input class="search-box" placeholder="Search..." oninput="setRealSearch(this.value)">' +
     '<div class="progress-wrap"><div class="progress-bar-wrap"><div class="progress-bar" id="realProgressBar"></div></div>' +
     '<span class="progress-text" id="realProgressText">0/0</span></div>';
@@ -768,10 +789,17 @@ function renderCurrent() {
   if (currentTab === 'leetcode') {
     toolbar.innerHTML = renderLeetCodeToolbar();
     tagPills.style.display = 'flex';
+    var lcBtn = document.getElementById('tagToggleBtn');
+    if (lcBtn) lcBtn.style.display = 'none';
     renderLeetCode();
   } else if (currentTab === 'real') {
     toolbar.innerHTML = renderRealToolbar();
-    tagPills.style.display = 'flex';
+    tagPills.style.display = realTagsVisible ? 'flex' : 'none';
+    var realBtn = document.getElementById('tagToggleBtn');
+    if (realBtn) {
+      realBtn.style.display = '';
+      realBtn.textContent = realTagsVisible ? 'Tags ▼' : 'Tags ▶';
+    }
     renderRealQuestions();
   } else if (currentTab === 'bq') {
     toolbar.innerHTML = renderBQToolbar();

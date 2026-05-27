@@ -580,17 +580,68 @@ function renderRealQuestions() {
   }
   if (realTagFilter) data = data.filter(function(p) { return (p.tags||[]).indexOf(realTagFilter) >= 0; });
 
+  // Build tag→problems index and sort tags by problem count desc
+  var tagIndex = {};
+  data.forEach(function(p) {
+    (p.tags||[]).forEach(function(t) {
+      if (!tagIndex[t]) tagIndex[t] = [];
+      tagIndex[t].push(p);
+    });
+  });
+  var sortedTags = Object.keys(tagIndex).sort(function(a, b) {
+    return tagIndex[b].length - tagIndex[a].length;
+  });
+
+  var seen = {};
   var html = '';
-  for (var i = 0; i < data.length; i++) {
-    var p = data[i];
-    var done = checked[p.id] || false;
-    html += '<div class="problem-item' + (done?' done':'') + '" data-id="' + p.id + '">' +
-      '<input type="checkbox" data-id="' + p.id + '" ' + (done?'checked':'') + '>' +
-      '<span class="item-num">#' + (p.id||'').split('-')[1] + '</span>' +
-      '<span class="item-title">' + escHtml(p.title_en || '') + ' / ' + escHtml(p.title_cn || '') + '</span>' +
-      (p.tags||[]).slice(0,3).map(function(t){return '<span class="tag">'+t+'</span>'}).join('') +
-      '<span class="click-hint">&gt; Click for solution</span></div>';
+
+  if (realTagFilter) {
+    // Single tag filter: flat list (no grouping needed)
+    for (var i = 0; i < data.length; i++) {
+      var p = data[i];
+      var done = checked[p.id] || false;
+      html += '<div class="problem-item' + (done?' done':'') + '" data-id="' + p.id + '">' +
+        '<input type="checkbox" data-id="' + p.id + '" ' + (done?'checked':'') + '>' +
+        '<span class="item-num">#' + (p.id||'').split('-')[1] + '</span>' +
+        '<span class="item-title">' + escHtml(p.title_en || '') + ' / ' + escHtml(p.title_cn || '') + '</span>' +
+        (p.tags||[]).slice(0,3).map(function(t){return '<span class="tag">'+t+'</span>'}).join('') +
+        '<span class="click-hint">&gt; Click for solution</span></div>';
+    }
+  } else {
+    // Group by tag with collapsible sections
+    for (var ti = 0; ti < sortedTags.length; ti++) {
+      var tag = sortedTags[ti];
+      var items = tagIndex[tag];
+      var totalCount = items.length;
+      var doneCount = items.filter(function(p) { return checked[p.id]; }).length;
+      // Collapse sections that have all items done
+      var allDone = doneCount === totalCount && totalCount > 0;
+      html += '<div class="topic-section">' +
+        '<div class="topic-header" onclick="this.nextElementSibling.classList.toggle(\'collapsed\')">' +
+        '<span>' + tag + '</span>' +
+        '<span class="topic-count">' + totalCount + ' (' + doneCount + ' done)</span>' +
+        '<span style="margin-left:auto;font-size:11px;color:var(--text2)">' + (allDone ? '▶' : '▼') + '</span>' +
+        '</div>' +
+        '<div class="topic-problems' + (allDone ? ' collapsed' : '') + '">';
+
+      for (var ii = 0; ii < items.length; ii++) {
+        var p = items[ii];
+        var done = checked[p.id] || false;
+        var key = p.id;
+        var dup = seen[key];
+        seen[key] = true;
+        html += '<div class="problem-item' + (done?' done':'') + '" data-id="' + p.id + '">' +
+          '<input type="checkbox" data-id="' + p.id + '" ' + (done?'checked':'') + '>' +
+          '<span class="item-num">#' + (p.id||'').split('-')[1] + '</span>' +
+          '<span class="item-title">' + escHtml(p.title_en || '') + ' / ' + escHtml(p.title_cn || '') + '</span>' +
+          (p.tags||[]).slice(0,3).map(function(t){return '<span class="tag">'+t+'</span>'}).join('') +
+          (dup ? '<span style="font-size:9px;color:var(--text2);margin-left:4px">(also in other sections)</span>' : '') +
+          '<span class="click-hint">&gt; Click for solution</span></div>';
+      }
+      html += '</div></div>';
+    }
   }
+
   document.getElementById('container').innerHTML = html || '<div class="zero-state">No real questions match filters</div>';
 
   var allTags = new Set();

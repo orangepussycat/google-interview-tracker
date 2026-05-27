@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trie · Union-Find · Graph — Google Interview Prep</title>
+<style>
+:root {
+  --bg: #0d1117; --bg2: #161b22; --bg3: #21262d; --border: #30363d;
+  --text: #c9d1d9; --text2: #8b949e;
+  --easy: #3fb950; --medium: #d29922; --hard: #f85149;
+  --accent: #58a6ff; --accent2: #1f6feb;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg); color: var(--text);
+  padding: 20px; min-height: 100vh;
+}
+h1 { font-size: 20px; margin-bottom: 4px; }
+.subtitle { font-size: 13px; color: var(--text2); margin-bottom: 12px; }
+.toolbar {
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  padding: 10px 14px; background: var(--bg2); border-radius: 8px;
+  border: 1px solid var(--border); margin-bottom: 12px;
+}
+.pill {
+  padding: 3px 10px; border-radius: 14px; font-size: 11px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg3); color: var(--text2);
+  white-space: nowrap; transition: all 0.12s;
+}
+.pill:hover { border-color: var(--text2); color: var(--text); }
+.pill.active { background: var(--accent2); border-color: var(--accent); color: #fff; }
+.pill.pill-trie.active { background: #7c3aed; border-color: #8b5cf6; }
+.pill.pill-uf.active { background: #0891b2; border-color: #06b6d4; }
+.pill.pill-graph.active { background: #d97706; border-color: #f59e0b; }
+.pill.pill-easy.active { background: #16a34a; border-color: #22c55e; }
+.pill.pill-medium.active { background: #ca8a04; border-color: #eab308; }
+.pill.pill-hard.active { background: #dc2626; border-color: #ef4444; }
+.search-box {
+  padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--bg3); color: var(--text); font-size: 12px;
+  width: 180px; outline: none;
+}
+.search-box:focus { border-color: var(--accent); }
+.progress-wrap { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.progress-bar-wrap { width: 80px; height: 5px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.progress-bar { height: 100%; background: var(--easy); transition: width 0.3s; border-radius: 3px; }
+.progress-text { font-size: 11px; color: var(--text2); white-space: nowrap; }
+
+.category-section { margin-bottom: 16px; }
+.category-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px; border-radius: 8px 8px 0 0;
+  font-size: 14px; font-weight: 600; border: 1px solid var(--border);
+  border-bottom: none;
+}
+.category-header.trie { background: rgba(124,58,237,0.15); border-color: #7c3aed; color: #a78bfa; }
+.category-header.uf { background: rgba(8,145,178,0.15); border-color: #0891b2; color: #22d3ee; }
+.category-header.graph { background: rgba(217,119,6,0.15); border-color: #d97706; color: #fbbf24; }
+.cat-count { font-size: 11px; font-weight: 400; color: var(--text2); margin-left: auto; }
+
+.problem-item {
+  display: flex; align-items: center; gap: 8px; padding: 5px 14px;
+  border: 1px solid var(--border); border-top: none;
+  font-size: 13px; cursor: pointer; transition: background 0.1s;
+}
+.problem-item:hover { background: var(--bg2); }
+.problem-item:last-of-type { border-radius: 0 0 8px 8px; }
+.problem-item.done { opacity: 0.45; }
+.problem-item input[type="checkbox"] {
+  width: 14px; height: 14px; cursor: pointer; accent-color: var(--easy); flex-shrink: 0;
+}
+.item-num { color: var(--text2); font-size: 11px; min-width: 40px; flex-shrink: 0; }
+.item-title { flex: 1; min-width: 0; }
+.item-title a { color: var(--accent); text-decoration: none; }
+.item-title a:hover { text-decoration: underline; }
+.diff-badge {
+  font-size: 10px; font-weight: 600; padding: 1px 5px; border-radius: 3px; flex-shrink: 0;
+}
+.diff-badge.Easy { color: var(--easy); background: rgba(63,185,80,0.12); }
+.diff-badge.Medium { color: var(--medium); background: rgba(210,153,34,0.12); }
+.diff-badge.Hard { color: var(--hard); background: rgba(248,81,73,0.12); }
+.list-badges { display: flex; gap: 2px; flex-shrink: 0; }
+.list-badge { font-size: 9px; padding: 1px 4px; border-radius: 2px; font-weight: 600; }
+.list-badge.d30 { background: rgba(210,153,34,0.2); color: #d29922; }
+.list-badge.d3m { background: rgba(88,166,255,0.2); color: #58a6ff; }
+.list-badge.d6m { background: rgba(139,148,158,0.2); color: #8b949e; }
+.cat-tag { font-size: 10px; padding: 1px 6px; border-radius: 3px; flex-shrink: 0; font-weight: 500; }
+.cat-tag.trie { background: rgba(124,58,237,0.2); color: #a78bfa; }
+.cat-tag.uf { background: rgba(8,145,178,0.2); color: #22d3ee; }
+.cat-tag.graph { background: rgba(217,119,6,0.2); color: #fbbf24; }
+
+.empty-msg { padding: 20px; text-align: center; color: var(--text2); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<h1>🔍 Trie · Union-Find · Graph</h1>
+<div class="subtitle">49 problems from Google's 6-month LeetCode list — organized by topic</div>
+
+<div class="toolbar">
+  <div class="filter-group">
+    <span class="pill pill-trie active" data-filter="trie">Trie</span>
+    <span class="pill pill-uf active" data-filter="uf">Union-Find</span>
+    <span class="pill pill-graph active" data-filter="graph">Graph</span>
+  </div>
+  <div class="filter-group">
+    <span class="pill pill-easy active" data-filter="Easy">Easy</span>
+    <span class="pill pill-medium active" data-filter="Medium">Medium</span>
+    <span class="pill pill-hard active" data-filter="Hard">Hard</span>
+  </div>
+  <input class="search-box" id="search" placeholder="Search problems..." oninput="render()">
+  <div class="progress-wrap">
+    <span class="progress-text" id="progressText">0/49</span>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+  </div>
+</div>
+
+<div id="container"></div>
+
+<script>
+var DATA = [
+  {"num":14,"title":"Longest Common Prefix","slug":"longest-common-prefix","diff":"Easy","lists":["3m","6m"],"cats":["trie"]},
+  {"num":208,"title":"Implement Trie (Prefix Tree)","slug":"implement-trie-prefix-tree","diff":"Medium","lists":["3m","6m"],"cats":["trie"]},
+  {"num":212,"title":"Word Search II","slug":"word-search-ii","diff":"Hard","lists":["6m"],"cats":["trie","graph"]},
+  {"num":386,"title":"Lexicographical Numbers","slug":"lexicographical-numbers","diff":"Medium","lists":["6m"],"cats":["trie"]},
+  {"num":642,"title":"Design Search Autocomplete System","slug":"design-search-autocomplete-system","diff":"Hard","lists":["3m","6m"],"cats":["trie"]},
+  {"num":692,"title":"Top K Frequent Words","slug":"top-k-frequent-words","diff":"Medium","lists":["6m"],"cats":["trie"]},
+  {"num":2707,"title":"Extra Characters in a String","slug":"extra-characters-in-a-string","diff":"Medium","lists":["6m"],"cats":["trie"]},
+  {"num":3043,"title":"Find the Length of the Longest Common Prefix","slug":"find-the-length-of-the-longest-common-prefix","diff":"Medium","lists":["6m"],"cats":["trie"]},
+  {"num":128,"title":"Longest Consecutive Sequence","slug":"longest-consecutive-sequence","diff":"Medium","lists":["30d","3m","6m"],"cats":["uf"]},
+  {"num":130,"title":"Surrounded Regions","slug":"surrounded-regions","diff":"Medium","lists":["3m","6m"],"cats":["uf","graph"]},
+  {"num":200,"title":"Number of Islands","slug":"number-of-islands","diff":"Medium","lists":["3m","6m"],"cats":["uf","graph"]},
+  {"num":305,"title":"Number of Islands II","slug":"number-of-islands-ii","diff":"Hard","lists":["3m","6m"],"cats":["uf"]},
+  {"num":399,"title":"Evaluate Division","slug":"evaluate-division","diff":"Medium","lists":["3m","6m"],"cats":["uf","graph"]},
+  {"num":547,"title":"Number of Provinces","slug":"number-of-provinces","diff":"Medium","lists":["3m","6m"],"cats":["uf"]},
+  {"num":695,"title":"Max Area of Island","slug":"max-area-of-island","diff":"Medium","lists":["6m"],"cats":["uf","graph"]},
+  {"num":721,"title":"Accounts Merge","slug":"accounts-merge","diff":"Medium","lists":["6m"],"cats":["uf","graph"]},
+  {"num":778,"title":"Swim in Rising Water","slug":"swim-in-rising-water","diff":"Hard","lists":["3m","6m"],"cats":["uf","graph"]},
+  {"num":827,"title":"Making A Large Island","slug":"making-a-large-island","diff":"Hard","lists":["6m"],"cats":["uf"]},
+  {"num":1254,"title":"Number of Closed Islands","slug":"number-of-closed-islands","diff":"Medium","lists":["3m","6m"],"cats":["uf","graph"]},
+  {"num":1584,"title":"Min Cost to Connect All Points","slug":"min-cost-to-connect-all-points","diff":"Medium","lists":["3m","6m"],"cats":["uf"]},
+  {"num":1631,"title":"Path With Minimum Effort","slug":"path-with-minimum-effort","diff":"Medium","lists":["6m"],"cats":["uf"]},
+  {"num":2092,"title":"Find All People With Secret","slug":"find-all-people-with-secret","diff":"Hard","lists":["6m"],"cats":["uf"]},
+  {"num":79,"title":"Word Search","slug":"word-search","diff":"Medium","lists":["3m","6m"],"cats":["graph"]},
+  {"num":126,"title":"Word Ladder II","slug":"word-ladder-ii","diff":"Hard","lists":["3m","6m"],"cats":["graph"]},
+  {"num":127,"title":"Word Ladder","slug":"word-ladder","diff":"Hard","lists":["3m","6m"],"cats":["graph"]},
+  {"num":133,"title":"Clone Graph","slug":"clone-graph","diff":"Medium","lists":["3m","6m"],"cats":["graph"]},
+  {"num":207,"title":"Course Schedule","slug":"course-schedule","diff":"Medium","lists":["30d","3m","6m"],"cats":["graph"]},
+  {"num":210,"title":"Course Schedule II","slug":"course-schedule-ii","diff":"Medium","lists":["6m"],"cats":["graph"]},
+  {"num":269,"title":"Alien Dictionary","slug":"alien-dictionary","diff":"Hard","lists":["3m","6m"],"cats":["graph"]},
+  {"num":286,"title":"Walls and Gates","slug":"walls-and-gates","diff":"Medium","lists":["6m"],"cats":["graph"]},
+  {"num":329,"title":"Longest Increasing Path in a Matrix","slug":"longest-increasing-path-in-a-matrix","diff":"Hard","lists":["3m","6m"],"cats":["graph"]},
+  {"num":417,"title":"Pacific Atlantic Water Flow","slug":"pacific-atlantic-water-flow","diff":"Medium","lists":["6m"],"cats":["graph"]},
+  {"num":433,"title":"Minimum Genetic Mutation","slug":"minimum-genetic-mutation","diff":"Medium","lists":["6m"],"cats":["graph"]},
+  {"num":463,"title":"Island Perimeter","slug":"island-perimeter","diff":"Easy","lists":["3m","6m"],"cats":["graph"]},
+  {"num":542,"title":"01 Matrix","slug":"01-matrix","diff":"Medium","lists":["30d","3m","6m"],"cats":["graph"]},
+  {"num":733,"title":"Flood Fill","slug":"flood-fill","diff":"Easy","lists":["6m"],"cats":["graph"]},
+  {"num":743,"title":"Network Delay Time","slug":"network-delay-time","diff":"Medium","lists":["3m","6m"],"cats":["graph"]},
+  {"num":787,"title":"Cheapest Flights Within K Stops","slug":"cheapest-flights-within-k-stops","diff":"Medium","lists":["3m","6m"],"cats":["graph"]},
+  {"num":802,"title":"Find Eventual Safe States","slug":"find-eventual-safe-states","diff":"Medium","lists":["6m"],"cats":["graph"]},
+  {"num":815,"title":"Bus Routes","slug":"bus-routes","diff":"Hard","lists":["30d","3m","6m"],"cats":["graph"]},
+  {"num":847,"title":"Shortest Path Visiting All Nodes","slug":"shortest-path-visiting-all-nodes","diff":"Hard","lists":["3m","6m"],"cats":["graph"]},
+  {"num":909,"title":"Snakes and Ladders","slug":"snakes-and-ladders","diff":"Medium","lists":["6m"],"cats":["graph"]},
+  {"num":934,"title":"Shortest Bridge","slug":"shortest-bridge","diff":"Medium","lists":["3m","6m"],"cats":["graph"]},
+  {"num":994,"title":"Rotting Oranges","slug":"rotting-oranges","diff":"Medium","lists":["3m","6m"],"cats":["graph"]},
+  {"num":1091,"title":"Shortest Path in Binary Matrix","slug":"shortest-path-in-binary-matrix","diff":"Medium","lists":["6m"],"cats":["graph"]},
+  {"num":1368,"title":"Minimum Cost to Make at Least One Valid Path in a Grid","slug":"minimum-cost-to-make-at-least-one-valid-path-in-a-grid","diff":"Hard","lists":["6m"],"cats":["graph"]},
+  {"num":1376,"title":"Time Needed to Inform All Employees","slug":"time-needed-to-inform-all-employees","diff":"Medium","lists":["3m","6m"],"cats":["graph"]},
+  {"num":1557,"title":"Minimum Number of Vertices to Reach All Nodes","slug":"minimum-number-of-vertices-to-reach-all-nodes","diff":"Medium","lists":["6m"],"cats":["graph"]},
+  {"num":1976,"title":"Number of Ways to Arrive at Destination","slug":"number-of-ways-to-arrive-at-destination","diff":"Medium","lists":["6m"],"cats":["graph"]}
+];
+
+var STORAGE_KEY = 'tuf-graph-progress';
+var checked = {};
+
+function loadState() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) checked = JSON.parse(raw);
+  } catch(e) {}
+}
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(checked));
+}
+function toggleCheck(num) {
+  var k = String(num);
+  checked[k] = !checked[k];
+  saveState();
+  render();
+}
+
+var catFilters = {trie: true, uf: true, graph: true};
+var diffFilters = {Easy: true, Medium: true, Hard: true};
+
+function getCatLabel(cat) {
+  return {trie:'Trie', uf:'Union-Find', graph:'Graph'}[cat] || cat;
+}
+function getCatClass(cat) {
+  return {trie:'trie', uf:'uf', graph:'graph'}[cat] || '';
+}
+
+function render() {
+  var q = document.getElementById('search').value.toLowerCase().trim();
+  var catsActive = Object.keys(catFilters).filter(function(k) { return catFilters[k]; });
+  var diffsActive = Object.keys(diffFilters).filter(function(k) { return diffFilters[k]; });
+
+  var filtered = DATA.filter(function(p) {
+    if (q && p.title.toLowerCase().indexOf(q) < 0 && String(p.num).indexOf(q) < 0) return false;
+    var catOk = catsActive.length === 0 || p.cats.some(function(c) { return catsActive.indexOf(c) >= 0; });
+    var diffOk = diffsActive.length === 0 || diffsActive.indexOf(p.diff) >= 0;
+    return catOk && diffOk;
+  });
+
+  var container = document.getElementById('container');
+  container.innerHTML = '';
+
+  var catOrder = ['trie', 'uf', 'graph'];
+  var totalDone = 0;
+  var totalVisible = 0;
+
+  catOrder.forEach(function(cat) {
+    if (!catFilters[cat]) return;
+    var items = filtered.filter(function(p) { return p.cats.indexOf(cat) >= 0; });
+    if (items.length === 0) return;
+
+    var sec = document.createElement('div');
+    sec.className = 'category-section';
+
+    var hdr = document.createElement('div');
+    hdr.className = 'category-header ' + cat;
+    hdr.innerHTML = getCatLabel(cat) + ' <span class="cat-count">' + items.length + ' problems</span>';
+    sec.appendChild(hdr);
+
+    items.forEach(function(p) {
+      var k = String(p.num);
+      var done = !!checked[k];
+      if (done) totalDone++;
+
+      var listsHtml = p.lists.map(function(l) {
+        var cls = {30:'d30', 3:'d3m', 6:'d6m'}[l.charAt(0)] || 'd6m';
+        return '<span class="list-badge ' + cls + '">' + l + '</span>';
+      }).join('');
+
+      var catTags = p.cats.map(function(c) {
+        return '<span class="cat-tag ' + getCatClass(c) + '">' + getCatLabel(c) + '</span>';
+      }).join('');
+
+      var item = document.createElement('div');
+      item.className = 'problem-item' + (done ? ' done' : '');
+      item.innerHTML = '<input type="checkbox" ' + (done ? 'checked' : '') + ' data-num="' + p.num + '">'
+        + '<span class="item-num">#' + p.num + '</span>'
+        + '<span class="item-title"><a href="https://leetcode.com/problems/' + p.slug + '/" target="_blank">' + p.title + '</a></span>'
+        + '<span class="diff-badge ' + p.diff + '">' + p.diff + '</span>'
+        + '<span class="list-badges">' + listsHtml + '</span>'
+        + catTags;
+      sec.appendChild(item);
+    });
+
+    container.appendChild(sec);
+    totalVisible += items.length;
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="empty-msg">No matching problems. Try adjusting filters.</div>';
+  }
+
+  document.getElementById('progressText').textContent = totalDone + '/' + totalVisible;
+  var pct = totalVisible > 0 ? (totalDone / totalVisible * 100) : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+document.addEventListener('click', function(e) {
+  if (e.target.tagName === 'INPUT' && e.target.type === 'checkbox') {
+    var num = parseInt(e.target.getAttribute('data-num'), 10);
+    if (num) toggleCheck(num);
+    return;
+  }
+
+  var pill = e.target.closest('.pill');
+  if (!pill) return;
+  var filter = pill.getAttribute('data-filter');
+  if (!filter) return;
+
+  if (['Easy','Medium','Hard'].indexOf(filter) >= 0) {
+    diffFilters[filter] = !diffFilters[filter];
+    pill.classList.toggle('active');
+  } else {
+    catFilters[filter] = !catFilters[filter];
+    pill.classList.toggle('active');
+  }
+  render();
+});
+
+loadState();
+render();
+</script>
+</body>
+</html>

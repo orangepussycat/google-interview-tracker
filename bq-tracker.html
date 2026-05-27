@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Google BQ Prep — Story Pool & STAR Answers</title>
+<style>
+:root {
+  --bg: #0d1117; --bg2: #161b22; --bg3: #21262d; --border: #30363d;
+  --text: #c9d1d9; --text2: #8b949e;
+  --easy: #3fb950; --medium: #d29922; --hard: #f85149;
+  --accent: #58a6ff; --accent2: #1f6feb;
+  --purple: #a78bfa; --cyan: #22d3ee; --amber: #fbbf24;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg); color: var(--text);
+  max-width: 900px; margin: 0 auto; padding: 20px; min-height: 100vh;
+}
+h1 { font-size: 20px; margin-bottom: 4px; }
+.subtitle { font-size: 13px; color: var(--text2); margin-bottom: 16px; }
+
+.tabs { display: flex; gap: 2px; margin-bottom: 16px; flex-wrap: wrap; }
+.tab {
+  padding: 7px 14px; cursor: pointer; font-size: 12px; font-weight: 500;
+  color: var(--text2); border: 1px solid var(--border); background: var(--bg2);
+  border-radius: 8px; transition: all 0.12s; white-space: nowrap;
+}
+.tab:hover { color: var(--text); border-color: var(--text2); }
+.tab.active { color: var(--accent); border-color: var(--accent); background: var(--bg3); }
+
+.story-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+.story-tag {
+  font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 500;
+  background: var(--bg3); color: var(--text2); border: 1px solid var(--border);
+}
+.story-tag.g { background: rgba(248,81,73,0.15); color: #f85149; border-color: #f85149; }
+.story-tag.e { background: rgba(210,153,34,0.15); color: #d29922; border-color: #d29922; }
+.story-tag.f { background: rgba(8,145,178,0.15); color: #22d3ee; border-color: #0891b2; }
+.story-tag.h { background: rgba(124,58,237,0.15); color: #a78bfa; border-color: #7c3aed; }
+.story-tag.b { background: rgba(217,119,6,0.15); color: #fbbf24; border-color: #d97706; }
+.story-tag.a { background: rgba(88,166,255,0.15); color: #58a6ff; border-color: #58a6ff; }
+.story-tag.c { background: rgba(63,185,80,0.15); color: #3fb950; border-color: #3fb950; }
+
+.section { display: none; }
+.section.active { display: block; }
+
+.card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+  padding: 20px; margin-bottom: 16px;
+}
+.card h2 { font-size: 16px; margin-bottom: 8px; color: var(--accent); }
+.card h3 { font-size: 14px; margin: 16px 0 6px; }
+.card h4 { font-size: 13px; margin: 12px 0 4px; color: var(--text2); }
+.card p { font-size: 13px; line-height: 1.6; margin-bottom: 8px; }
+.card ul, .card ol { font-size: 13px; line-height: 1.6; padding-left: 20px; margin-bottom: 8px; }
+.card li { margin-bottom: 3px; }
+.card strong { color: #fff; }
+.card a { color: var(--accent); text-decoration: none; }
+.card a:hover { text-decoration: underline; }
+.card table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 13px; }
+.card th { text-align: left; padding: 6px 10px; background: var(--bg3); border: 1px solid var(--border); font-size: 12px; }
+.card td { padding: 6px 10px; border: 1px solid var(--border); }
+.card code {
+  background: var(--bg3); padding: 1px 5px; border-radius: 3px; font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.card pre {
+  background: var(--bg3); padding: 12px 16px; border-radius: 6px; overflow-x: auto;
+  font-size: 12px; line-height: 1.5; margin: 8px 0; border: 1px solid var(--border);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.card hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+.card blockquote {
+  border-left: 3px solid var(--accent); padding: 4px 12px; margin: 8px 0;
+  color: var(--text2); font-size: 13px;
+}
+
+.checklist { list-style: none; padding-left: 0; }
+.checklist li { padding: 3px 0; }
+.checklist input[type="checkbox"] {
+  width: 14px; height: 14px; margin-right: 6px; cursor: pointer; accent-color: var(--easy);
+  vertical-align: middle;
+}
+
+.cat-header {
+  padding: 8px 14px; border-radius: 6px; margin-bottom: 8px; font-weight: 600; font-size: 14px;
+  border: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; gap: 8px;
+}
+.cat-header.grp-a { background: rgba(88,166,255,0.08); color: #58a6ff; }
+.cat-header.grp-b { background: rgba(217,119,6,0.08); color: #fbbf24; }
+.cat-header.grp-c { background: rgba(63,185,80,0.08); color: #3fb950; }
+.cat-header.grp-d { background: rgba(139,148,158,0.08); color: #c9d1d9; }
+.cat-header.grp-e { background: rgba(210,153,34,0.08); color: #d29922; }
+.cat-header.grp-f { background: rgba(8,145,178,0.08); color: #22d3ee; }
+.cat-header.grp-g { background: rgba(248,81,73,0.08); color: #f85149; }
+.cat-header.grp-h { background: rgba(124,58,237,0.08); color: #a78bfa; }
+.cat-header.grp-open { background: rgba(63,185,80,0.08); color: #3fb950; }
+.count { font-size: 11px; font-weight: 400; color: var(--text2); margin-left: auto; }
+.summary-table { margin: 16px 0; }
+.summary-table td:first-child { font-weight: 600; }
+
+.followup { margin-top: 12px; padding: 12px; background: rgba(88,166,255,0.05); border-radius: 6px; border: 1px solid var(--border); }
+.followup h4 { color: var(--accent) !important; margin-top: 0 !important; }
+</style>
+</head>
+<body>
+
+<h1>Google BQ Interview Prep</h1>
+<div class="subtitle">Story Pool + 4 Polished STAR Stories — last updated 2026-05-27</div>
+
+<div class="tabs">
+  <span class="tab active" data-tab="overview">Story Pool Overview</span>
+  <span class="tab" data-tab="story1">Story 1: Content Moderation</span>
+  <span class="tab" data-tab="story2">Story 2: Pipeline Architecture</span>
+  <span class="tab" data-tab="story3">Story 3: Event Automation</span>
+  <span class="tab" data-tab="story4">Story 4: Helping Other Team</span>
+</div>
+
+<!-- ==================== OVERVIEW ==================== -->
+<div class="section active" id="tab-overview">
+<div class="card">
+<h2>Story Pool — 一个故事覆盖多道题</h2>
+<p>最少准备 <strong>6-7 个核心故事</strong> 即可覆盖所有 BQ 题。</p>
+
+<h3>故事 A：难相处同事 / 跨团队协作冲突</h3>
+<ul class="checklist">
+<li><input type="checkbox" data-id="A1"> Tell me about a time you had a conflict with a colleague. How did you handle it?</li>
+<li><input type="checkbox" data-id="A2"> Tell me about a time a colleague was not cooperative. How did you handle it?</li>
+<li><input type="checkbox" data-id="A3"> Tell me about a time you worked with a difficult coworker. How did you handle the situation?</li>
+<li><input type="checkbox" data-id="A4"> Describe a time you had to collaborate with another team that was working on something similar.</li>
+</ul>
+<p style="font-size:12px;color:var(--text2)">核心要素：冲突起因 → 你主动沟通/找对齐 → 达成合作 → 结果</p>
+
+<h3>故事 B：向上管理 / 对高级别的异见</h3>
+<ul class="checklist">
+<li><input type="checkbox" data-id="B1"> Tell me about a time you disagreed with a senior colleague or stakeholder and how you handled it.</li>
+<li><input type="checkbox" data-id="B2"> Describe a time there was a dispute over credit or recognition and how you handled it.</li>
+</ul>
+<p style="font-size:12px;color:var(--text2)">核心要素：立场分歧 → 数据/逻辑支撑你的观点 → 如何 respectfully push back → 结果</p>
+
+<h3>故事 C：帮助低绩效同事 / 主动帮助他人</h3>
+<ul class="checklist">
+<li><input type="checkbox" data-id="C1"> Tell me about a time you helped an underperforming peer. What did you do?</li>
+<li><input type="checkbox" data-id="C2"> Tell me about a time you went out of your way to help someone outside your team.</li>
+</ul>
+<p style="font-size:12px;color:var(--text2)">核心要素：识别对方的卡点 → 主动介入 → 具体帮助方式 → 对方/团队的改变</p>
+
+<h3>故事 D：任务分配被 pushback（Leadership）</h3>
+<ul class="checklist">
+<li><input type="checkbox" data-id="D1"> Tell me about a time you had to assign tasks to a team and they pushed back on your assignments.</li>
+</ul>
+
+<h3>故事 E：旗舰项目 / 最有成就感 ⭐</h3>
+<ul class="checklist">
+<li><input type="checkbox" data-id="E1"> Describe the most challenging project you have worked on.</li>
+<li><input type="checkbox" data-id="E2"> Tell me about your greatest professional achievement or most successful project.</li>
+<li><input type="checkbox" data-id="E3"> Tell me about a time you went above and beyond expectations.</li>
+<li><input type="checkbox" data-id="E4"> How would you plan and deliver a new feature from scratch?</li>
+</ul>
+<p style="font-size:12px;color:var(--text2)">最重要的故事，建议准备最充分、细节最丰富，能拆成多个角度讲。</p>
+
+<h3>故事 F：模糊 / 紧急 / 多任务压力下的交付</h3>
+<ul class="checklist">
+<li><input type="checkbox" data-id="F1"> Tell me about a time you had to deliver under a very tight deadline.</li>
+<li><input type="checkbox" data-id="F2"> How do you handle constantly changing priorities? Describe a specific example.</li>
+<li><input type="checkbox" data-id="F3"> Describe a time you had to handle an ambiguous situation with no clear solution.</li>
+<li><input type="checkbox" data-id="F4"> Tell me about a time you had to manage multiple projects at the same time.</li>
+<li><input type="checkbox" data-id="F5"> Describe a situation where there was no clear solution and you had to figure out what to do.</li>
+<li><input type="checkbox" data-id="F6"> Tell me about a time a project changed direction midway. How did you adapt?</li>
+</ul>
+<p style="font-size:12px;color:var(--text2)">高度重叠，一个「项目中途变向 + deadline 压缩」的故事可以全部搞定。</p>
+
+<h3>故事 G：失败 / 犯错 / 弱点</h3>
+<ul class="checklist">
+<li><input type="checkbox" data-id="G1"> Describe a time you failed to meet a goal. What happened and what did you learn?</li>
+<li><input type="checkbox" data-id="G2"> Tell me about a mistake you made at work and how you handled it.</li>
+<li><input type="checkbox" data-id="G3"> What is your biggest weakness and how are you improving it?</li>
+</ul>
+<p style="font-size:12px;color:var(--text2)">核心要素：坦诚的 failure → 你如何复盘 → 具体改进行动 → 后续结果</p>
+
+<h3>故事 H：学习新东西并应用</h3>
+<ul class="checklist">
+<li><input type="checkbox" data-id="H1"> Tell me about a time you learned something new and applied it to your work.</li>
+</ul>
+
+<h3>开放性问题（需单独准备，不套故事）</h3>
+<ul class="checklist">
+<li><input type="checkbox" data-id="O1"> What would you want to work on at Google and why?</li>
+<li><input type="checkbox" data-id="O2"> What keeps you motivated and passionate about your work?</li>
+<li><input type="checkbox" data-id="O3"> What is your greatest achievement outside of work?</li>
+<li><input type="checkbox" data-id="O4"> How will you keep contributing and stay relevant at Google?</li>
+</ul>
+
+<h3>总结</h3>
+<table class="summary-table">
+<tr><td>故事 A 难相处同事/跨团队</td><td>4 题</td></tr>
+<tr><td>故事 B 向上 disagreement</td><td>2 题</td></tr>
+<tr><td>故事 C 帮助他人</td><td>2 题</td></tr>
+<tr><td>故事 D 任务 pushback</td><td>1 题</td></tr>
+<tr><td>故事 E 旗舰项目 ⭐</td><td>4 题</td></tr>
+<tr><td>故事 F 模糊/紧急</td><td>6 题</td></tr>
+<tr><td>故事 G 失败/弱点</td><td>3 题</td></tr>
+<tr><td>故事 H 学习新东西</td><td>1 题</td></tr>
+<tr><td>开放性问题</td><td>4 题</td></tr>
+</table>
+</div>
+</div>
+
+<!-- ==================== STORY 1 ==================== -->
+<div class="section" id="tab-story1">
+<div class="card">
+<div class="story-tags">
+<span class="story-tag g">故事 G: 失败/犯错</span>
+<span class="story-tag e">故事 E: 旗舰项目</span>
+<span class="story-tag f">故事 F: 模糊/紧急</span>
+<span class="story-tag h">故事 H: 学习新东西</span>
+</div>
+<h2>Story 1: Content Moderation Service Failure → Client Saved</h2>
+
+<h3>Situation</h3>
+<p>Our team owns a content moderation service built on Amazon Bedrock, responsible for filtering spam and profanity in comments and articles. One of our key clients — the AWA Builder Center team — experienced a sudden spam attack where airline ads flooded their platform. Our service failed to catch them, resulting in over <strong>500 support tickets</strong> being created on the client side in a short window. The client was seriously considering migrating to a different moderation provider because of this incident.</p>
+
+<h3>Task</h3>
+<p>I took ownership of diagnosing and upgrading our moderation system to prevent this from happening again — and more immediately, to rebuild the client's confidence before they made the decision to leave.</p>
+
+<h3>Action</h3>
+<p><strong>Phase 1 — Evaluation Framework:</strong> I built an evaluation framework using the dataset the client provided from the attack. I systematically benchmarked different models and parameters — including temperature, top-p, and top-k — measuring F1 score, false positive rate, false negative rate, latency, and cost. This gave us a data-driven basis for choosing the best model configuration.</p>
+
+<p><strong>Phase 2 — Prompt Optimization:</strong> After identifying the optimal combination and upgrading the model, spam detection improved significantly. But I noticed we were over-flagging legitimate content. I redesigned the system prompt following prompt engineering best practices: adding few-shot examples with explicit input-output pairs, defining clear roles and rules, and structuring the prompt in XML format to give the model cleaner context boundaries.</p>
+
+<h3>Result</h3>
+<table>
+<tr><th>Metric</th><th>Before</th><th>After</th><th>Change</th></tr>
+<tr><td>Accuracy</td><td>68.2%</td><td>93.2%</td><td><strong>+25 pts</strong></td></tr>
+<tr><td>False Positives</td><td>448</td><td>99</td><td><strong>-78%</strong></td></tr>
+<tr><td>False Negatives</td><td>675</td><td>140</td><td><strong>-79%</strong></td></tr>
+<tr><td>Weekly Tickets</td><td>~500</td><td>~10-20</td><td><strong>-97%</strong></td></tr>
+</table>
+<p>The client decided to stay. The evaluation framework is now the standard process for any model upgrade.</p>
+
+<div class="followup">
+<h4>Follow-up Preparation</h4>
+<p><strong>What did you learn?</strong> Before this, we had no systematic evaluation framework — we tuned parameters on intuition. Now, every model upgrade must go through a standardized benchmark process.</p>
+<p><strong>What would you do differently?</strong> I would have established the evaluation framework proactively rather than reactively. Having benchmark data ready before incidents happen gives you confidence when things go wrong.</p>
+</div>
+</div>
+</div>
+
+<!-- ==================== STORY 2 ==================== -->
+<div class="section" id="tab-story2">
+<div class="card">
+<div class="story-tags">
+<span class="story-tag b">故事 B: 向上管理/异见</span>
+<span class="story-tag a">故事 A: 跨团队协作</span>
+<span class="story-tag f">故事 F: 模糊/无明确答案</span>
+</div>
+<h2>Story 2: Pipeline Architecture Disagreement with Senior Engineer</h2>
+
+<h3>Situation</h3>
+<p>I was on the AWS Marketing Content Validation team, collaborating with the Event Content Orchestration team to build an end-to-end automated workflow — publishing AWS event metadata from Airtable to multiple end platforms. The goal was to eliminate manual Excel uploads and edits entirely.</p>
+<p>At the time, the mobile channel was already live in production, and we needed to extend the system to support two additional channels: web and a third-party platform.</p>
+<p>The disagreement came early: a <strong>senior engineer strongly advocated</strong> for keeping all three channels in a single shared pipeline, arguing it would reduce operational overhead long-term. My team's position was that parallel development across three channels made a decoupled, multi-pipeline architecture the better choice.</p>
+
+<h3>Task</h3>
+<p>My job was to move this from an opinions-based debate to a data-driven architectural decision, and to get senior stakeholder buy-in on the decoupled approach.</p>
+
+<h3>Action</h3>
+<p>Rather than continuing an informal back-and-forth, I wrote a <strong>formal design doc</strong> comparing the two architectures across five dimensions:</p>
+<ol>
+<li><strong>Parallel development velocity</strong> — with a shared pipeline, progress on web or 3P could block mobile's promotion to production</li>
+<li><strong>Blast radius</strong> — making rapid changes to a prod pipeline that mobile already depends on carries real risk</li>
+<li><strong>Rollback granularity</strong> — a single pipeline means any rollback affects all channels simultaneously</li>
+<li><strong>Dependency isolation</strong> — decoupling prevents one channel's instability from cascading into others</li>
+<li><strong>Operational load</strong> — the doc quantified why the other four factors outweighed maintaining multiple configs</li>
+</ol>
+
+<h3>Result</h3>
+<p>The senior engineer aligned with the decoupled approach. We moved forward with separate pipelines per channel, unblocking parallel development and giving each team independent rollback control. The formal doc became a reference for future architecture decisions in the team.</p>
+
+<div class="followup">
+<h4>Follow-up Preparation</h4>
+<p><strong>Was the senior engineer genuinely convinced?</strong> He raised valid concerns about operational overhead, which I acknowledged in the doc. We agreed to revisit if the maintenance cost proved higher than expected. Six months later, the team agreed the decoupled approach was the right call.</p>
+<p><strong>What did you learn?</strong> When you disagree with a senior engineer, don't make it personal. Bring data, write it down, and frame it as a collaborative decision rather than a debate to win.</p>
+</div>
+</div>
+</div>
+
+<!-- ==================== STORY 3 ==================== -->
+<div class="section" id="tab-story3">
+<div class="card">
+<div class="story-tags">
+<span class="story-tag f">故事 F: 模糊/紧急 (6题)</span>
+<span class="story-tag e">故事 E: 旗舰项目</span>
+</div>
+<h2>Story 3: Event Content Publishing Automation — Tight Deadline</h2>
+
+<h3>Situation</h3>
+<p>I was an engineer on the Adabase Marketing Content Validation team. Our team owns a content moderation service that validates all content before publication — catching internal terms, broken links, and violation content.</p>
+<p>We were brought into a <strong>cross-team initiative</strong> to automate AWS Event content publishing across three teams:</p>
+<table>
+<tr><th>Team</th><th>Role</th></tr>
+<tr><td><strong>Our Team</strong> (Content Validator & Content Event Workflow)</td><td>Content validation + event workflow Step Function</td></tr>
+<tr><td><strong>AI Orchestrator Team</strong></td><td>Routes content to different channels, invokes workflow Step Functions</td></tr>
+<tr><td><strong>Client Team</strong> (e.g. Event Mobile)</td><td>Consumes validated metadata into S3, renders in mobile app</td></tr>
+</table>
+<p>The existing process was entirely manual: marketers downloaded Excel files from Airtable, manually validated every row, uploaded to Jenkins, and published to S3. We had only <strong>two weeks</strong> to design and build the automation from scratch.</p>
+
+<h3>Task</h3>
+<p>My specific responsibility was the <strong>Mobile channel</strong>: designing a serverless pipeline to (1) pull metadata from Airtable and transform, (2) run through Content Validation, (3) push to the Client Team's S3 bucket — all while coordinating across three teams.</p>
+
+<h3>Action</h3>
+<p><strong>Cross-Team Coordination:</strong> I mapped out every integration point. The AI Orchestrator Team would invoke our workflow Step Function, and we would deliver to the Client Team's S3. I set up daily 15-minute standups across teams.</p>
+<p><strong>Ambiguity — S3 Schema Alignment:</strong> The Client Team's mobile app consumed metadata in a specific nested JSON structure, but there was <strong>no documentation</strong>. I reverse-engineered the expected format from existing S3 data, built a mapping document, and walked through it with the Client Team's lead engineer. We caught mismatches like session speakers needing a nested array vs. our flat <code>speaker_name</code> string.</p>
+<p><strong>Architecture Challenge — Agent Concurrency Bottleneck:</strong></p>
+<p>Original architecture:</p>
+<pre>Step Function
+  └─ Lambda (per content item)
+       └─ Content Generation Agent
+            └─ MCP call → Content Validator</pre>
+<p>The agent had a <strong>service quota limiting concurrent invocations to ~10</strong>. For hundreds of session entries, this was a massive bottleneck.</p>
+<p>Optimized architecture:</p>
+<pre>Step Function
+  └─ Lambda (collects ALL content items)
+       └─ Single Content Generation Agent
+            └─ Skill → Batch Content Validator Lambda
+                 └─ Validates ALL items in one invocation</pre>
+<p>This bypassed the concurrency limit — from 10 items at a time to an entire event's session catalog in one shot.</p>
+<p><strong>Week 1:</strong> Built Step Functions + 3 Lambdas (Fetch & Transform, Batch Validate, Publish).</p>
+<p><strong>Week 2:</strong> End-to-end integration, retry logic + exponential backoff, human-readable SNS notifications.</p>
+
+<h3>Result</h3>
+<ul>
+<li><strong>94% reduction in manual effort</strong> — saving 4,300+ hours annually across 36 Flagship Events</li>
+<li>Content owners publish in minutes instead of days, directly from Airtable</li>
+<li>Delivered in 4 weeks end-to-end (workflow built in 2 weeks)</li>
+<li>Post-launch bug found and fixed same day</li>
+<li>Now live for Sydney and Paris AWS events; Phases 1.1–3 underway</li>
+<li>Acknowledged by name in the launch announcement</li>
+</ul>
+
+<div class="followup">
+<h4>Follow-up Preparation</h4>
+<p><strong>Biggest technical challenge?</strong> The agent concurrency bottleneck. The ~10 invocation limit meant the original architecture would have failed at scale. Redesigning to batch model required rethinking the entire validation flow.</p>
+<p><strong>How did you handle the S3 schema ambiguity?</strong> I didn't wait for documentation. I reverse-engineered from production data, created a mapping document, and drove a review session. When requirements are unclear, produce a concrete artifact people can react to.</p>
+<p><strong>How did you coordinate across three teams on a two-week deadline?</strong> Daily 15-minute standups, a clear integration map, and immediate escalation when any dependency was blocked.</p>
+</div>
+</div>
+</div>
+
+<!-- ==================== STORY 4 ==================== -->
+<div class="section" id="tab-story4">
+<div class="card">
+<div class="story-tags">
+<span class="story-tag c">故事 C: 帮助他人 (2题)</span>
+<span class="story-tag a">故事 A: 跨团队协作</span>
+<span class="story-tag h">故事 H: 学习应用</span>
+</div>
+<h2>Story 4: Helping Another Team Debug Flaky Integration Tests</h2>
+
+<h3>Situation</h3>
+<p>This happened during the <strong>Event Content Publishing Automation</strong> project — the same cross-team initiative. An engineer on the <strong>AI Orchestrator Team</strong> was responsible for the First Party Event workflow. He had been stuck on a frustrating issue: his integration tests would <strong>fail intermittently</strong> with no clear root cause — sometimes passing, then failing with no code changes. This was blocking his progress on the two-week deadline.</p>
+<p>I was not assigned to help him. I noticed his message in our shared Slack channel and recognized the symptoms immediately.</p>
+
+<h3>Task</h3>
+<p>I had dealt with a similar issue on my own workflow: when the Content Generation Agent called the Content Validator MCP, something would occasionally go wrong, resulting in a 400 Error (input invalid). I had my own Mobile channel to deliver on deadline — this was not my scope. But I knew how demoralizing flaky tests can be. I decided to step in.</p>
+
+<h3>Action</h3>
+<p><strong>Step 1 — Form a hypothesis:</strong> I had previously encountered a bug where the Content Generation Agent would <strong>modify the input</strong> using its own knowledge rather than passing through the original input as-is. The agent might change <code>enabled_modules</code>, <code>locale</code>, or <code>content_source</code> — "helpful corrections" that were actually wrong. The Content Validator Lambda would reject these with a 400 Error. Because these modifications were non-deterministic, test failures were intermittent — exactly matching his symptoms. I messaged him directly with my hypothesis.</p>
+<p><strong>Step 2 — Prove with data:</strong> I went into <strong>CloudWatch Logs</strong>, located his workflow's log group, and ran a targeted query filtering for 400 errors. The logs confirmed it — each failed test was preceded by a 400 Error with incorrect values in the modified fields. I screenshotted the evidence, annotated the causal chain, and shared it.</p>
+<p><strong>Step 3 — Fix:</strong> I drafted updated <strong>prompt rules</strong> for the skill: agent must pass through original input unchanged, must not use its own knowledge to modify any field values. I walked him through the changes in a 15-minute call. Tests passed consistently for the first time in days.</p>
+
+<h3>Result</h3>
+<ul>
+<li>First Party Event workflow integration tests <strong>fully stabilized</strong></li>
+<li>Colleague unblocked and delivered on the two-week timeline</li>
+<li>The updated prompt rules became the <strong>standard pattern</strong> for all agent-to-MCP interactions</li>
+<li>Validated my earlier fix on Mobile channel — proved it was a systemic issue</li>
+<li>Project shipped on time across all channels</li>
+</ul>
+
+<div class="followup">
+<h4>Follow-up Preparation</h4>
+<p><strong>Why did you help when you had your own deadline?</strong> Two reasons: (1) I recognized the symptoms and knew this bug could waste days — sharing context could save him hours. (2) If it was systemic, it would hit my workflow too — fixing it proactively was in everyone's interest.</p>
+<p><strong>What made this agent behavior hard to catch?</strong> The agent's input modification was non-deterministic — it didn't always happen, and it didn't always change the same fields. This looked like a flaky network issue, which is why my colleague was stuck. Only targeted log analysis revealed the pattern.</p>
+<p><strong>What systemic improvement came from this?</strong> We added the "pass-through input" rule to the standard prompt template for all agent-MCP interactions. I also documented the CloudWatch log query pattern so others could quickly diagnose similar issues.</p>
+</div>
+</div>
+</div>
+
+<script>
+var STORAGE_KEY = 'bq-interview-progress';
+var checked = {};
+
+try {
+  var raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) checked = JSON.parse(raw);
+} catch(e) {}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(checked));
+}
+
+// Restore checkbox state
+document.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
+  var id = cb.getAttribute('data-id');
+  if (id && checked[id]) cb.checked = true;
+});
+
+// Save on checkbox change
+document.addEventListener('change', function(e) {
+  if (e.target.tagName === 'INPUT' && e.target.type === 'checkbox') {
+    var id = e.target.getAttribute('data-id');
+    if (id) {
+      checked[id] = e.target.checked;
+      save();
+    }
+  }
+});
+
+// Tab switching
+document.querySelector('.tabs').addEventListener('click', function(e) {
+  var tab = e.target.closest('.tab');
+  if (!tab) return;
+  var target = tab.getAttribute('data-tab');
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  tab.classList.add('active');
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  var el = document.getElementById('tab-' + target);
+  if (el) el.classList.add('active');
+});
+</script>
+</body>
+</html>
